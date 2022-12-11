@@ -44,15 +44,8 @@ fn parse_file(mut file: File) -> Vec<u32> {
 }
 
 fn find_highest_value(elfs: &[u32]) -> (u32, usize) {
-    let mut elf_index: usize = 0;
-    let mut highest_calories: u32 = 0;
-    for (index, calories) in elfs.iter().enumerate() {
-        if calories > &highest_calories {
-            highest_calories = *calories;
-            elf_index = index;
-        }
-    }
-    (highest_calories, elf_index)
+    let max = elfs.iter().enumerate().map(|(index, amount)| (amount, index)).max().unwrap();
+    (*max.0, max.1)
 }
 
 
