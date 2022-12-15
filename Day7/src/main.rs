@@ -21,7 +21,8 @@ fn main() {
                     location.push(path);
                 }
             },
-            'd' => {
+            'd' => 
+            {
                 let directory = line.split_whitespace().last().unwrap();
                 let path = location.concat().add(directory);
                 map.insert(path, 0);
