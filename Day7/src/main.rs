@@ -1,31 +1,50 @@
+use std::{collections::HashMap, ops::Add};
+
+
 fn main() {
     let content = include_str!("../input.txt").to_string();
-    let mut chars = Vec::new();
-    let unique_length = 14; //4 for part 1
-    for (index, character) in content.chars().enumerate()  {
-        if chars.len() >= unique_length {
-            chars.remove(0);
-        } 
-        chars.push(character);
-        if all_unique(&mut chars, unique_length) {
-            println!("unique at {}", index + 1);
-            break;
-        }
-    }
-}
+    let mut map: HashMap<String, u32> = HashMap::new();
+    map.insert("/".to_string(), 0);
+    let mut location: Vec<String> = Vec::new();
+    for line in content.lines() {
+        let first_char = line.chars().next().unwrap();      
+        match first_char {
+            '$' => {
+                if line.contains("ls") {
+                    continue;
+                }
+                if line.contains("..") {
+                    location.remove(location.len() -1);
+                } else {
+                    let directory = line.split(' ').last().unwrap();
+                    let path = location.concat().add(directory);
+                    location.push(path);
+                }
+            },
+            'd' => {
+                let directory = line.split_whitespace().last().unwrap();
+                let path = location.concat().add(directory);
+                map.insert(path, 0);
+            },
+            '0'..='9' => {
+                let size: u32 = line.split_whitespace().filter_map(|num| num.parse::<u32>().ok()).collect::<Vec<u32>>()[0];
+                for loc in location.iter() {
+                    map.insert(loc.to_string(), map.get(&loc.to_string()).unwrap().add(size));
+                }
 
-fn all_unique(original: &mut Vec<char>, unique_length: usize) -> bool {
-    if original.len() != unique_length {
-        return false
-    }
-    let mut test = original.clone();
-    for _character in original {
-        let pop = test.pop().unwrap();
-        if test.contains(&pop) {
-            return false;
+            },
+            _ => println!("don't know"),
         }
     }
-    //this was not the way
-    //test.dedup();
-    true
+    let mut total_size = 0;
+    for dir in map.iter() {
+        if dir.1 < &100000 {
+            total_size += dir.1;
+        }
+    }
+    let needed = 30000000 - (70000000 - map.get(&"/".to_string()).unwrap());
+    println!("needed is {}", needed);
+    let smallest = map.into_values().into_iter().filter(|x| x > &needed).min().unwrap();
+    println!("smallest is {}", smallest);
+    println!("total size to delete is {}", total_size);
 }
